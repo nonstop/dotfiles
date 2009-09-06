@@ -1,0 +1,1 @@
+manpageview.vba: call delete('/home/nonstop/.vim/plugin/manpageview.vim')|call delete('/home/nonstop/.vim/syntax/man.vim')|call delete('/home/nonstop/.vim/syntax/mankey.vim')|call delete('/home/nonstop/.vim/syntax/info.vim')|call delete('/home/nonstop/.vim/syntax/manphp.vim')|call delete('/home/nonstop/.vim/doc/manpageview.txt')

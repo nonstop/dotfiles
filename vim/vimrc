@@ -1,0 +1,232 @@
+" global appearance
+set nocp
+set history=50
+set tabstop=4       " numbers of spaces of tab character
+set softtabstop=4   " number of spaces that <Tab> uses while editing
+set shiftwidth=4    " numbers of spaces to (auto)indent
+set expandtab
+"set smartindent     " smart indent
+set ignorecase      " ignorecase / ic
+set smartcase       " smartcase: override the 'ic' when searching
+                    " if search pattern contains uppercase char
+set hlsearch        " highlight searches
+set incsearch       " do incremental searching
+set autoindent      " always set autoindenting on
+set ruler           " show the cursor position all the time
+set nobackup        " do not keep a backup file
+set number          " show line numbers
+set ls=2            " allways show status line
+set title           " show title in console title bar
+set nostartofline   " don't jump to first character when paging
+filetype on         " filetype detection
+filetype plugin on
+filetype indent on
+set showmatch       " show matching brackets
+set foldmethod=marker
+set hidden          " enable switching between buffers without saving them
+if has('syntax') && (&t_Co > 2)
+  syntax on
+endif
+
+"noremap Bs Del
+"noremap Del Bs
+"set backspace=2
+set backspace=indent,eol,start
+" allows marking/pasting with the mouse also on 'not gui vim'
+set mouse=a         
+
+set backupdir=~/.vimbackup,/tmp
+set directory=~/.vimbackup,/tmp
+
+" statusline
+set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
+"set statusline=%<%F%h%m%r%h%w%y%=\ lin:%l\,%L\ col:%c%V\ pos:%o%=\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
+
+" colorscheme
+if has("gui_running") && (&t_Co > 2)
+    "set cursorline      " highlight current line
+    set guioptions-=T "get rid of toolbar
+    set guioptions-=m "get rid of menu
+    set background=dark
+    "colorscheme moria
+    colorscheme c16gui
+    if has("gui_gtk2")
+        set guifont=Terminus\ 12
+    elseif has("x11")
+        set guifont=--xos4-terminus-medium-*-*-*-16-*-koi8-r
+    else
+        set guifont=Terminus:h11:cDEFAULT
+    endif 
+    hi Tabs guibg=#88e088 guifg=#000000 gui=none
+    hi LongLines guibg=#88e088 guifg=#000000 gui=none
+    
+"    au BufNewFile,BufRead * exec 'match LongLines /\%>100v.\+/'
+"    au BufNewFile,BufRead *.c,*h,*.cc,*.hh,*.cpp,*.hpp,*.cxx,*.hxx,*.pc,*.pcc exec "2match Tabs '\t'"
+
+else
+    set background=dark
+    colorscheme desert
+endif
+
+" Make 'gf' rebound to last cursor position (line *and* column)
+noremap gf gf`"zz
+
+" file templates
+fun InitSlackBuild()
+    0r ~/.vim/templates/SlackBuild.tpl
+    set filetype=sh
+endfun
+
+:autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+":autocmd BufRead * silent '" 
+":autocmd BufRead wscript set filetype=python
+:autocmd BufNewFile *.html 0r ~/.vim/templates/html.tpl
+:autocmd BufNewFile *.xhtml 0r ~/.vim/templates/xhtml.tpl
+:autocmd BufNewFile *.xml 0r ~/.vim/templates/xml.tpl
+:autocmd BufNewFile *.slack-desc 0r ~/.vim/templates/slack-desc.tpl
+:autocmd BufNewFile slack-desc 0r ~/.vim/templates/slack-desc.tpl
+:autocmd BufNewFile *.SlackBuild call InitSlackBuild()
+
+" all neccessary initialization for editing python scripts
+fun InitPython()
+    setlocal keywordprg=pydoc
+    set smarttab
+    let python_highlight_all = 1
+    nmap <F5> :w\|!python %<CR>
+    autocmd BufWritePre *.py normal m`:%s/\s\+$//e ``
+    autocmd BufRead *.py set makeprg=python\ -c\ \"import\ py_compile,sys;\ sys.stderr=sys.stdout;\ py_compile.compile(r'%')\"
+    autocmd BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m
+endfun
+autocmd BufRead SConstruct set ft=python
+autocmd BufRead SConscript set ft=python
+autocmd FileType python call InitPython()
+autocmd FileType c setlocal omnifunc=ccomplete#Complete
+autocmd FileType sql set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType cmake set tabstop=2 softtabstop=2 shiftwidth=2
+
+" plugins' settings
+
+" TagList
+let Tlist_Use_Right_Window=1
+let Tlist_Auto_Open=0
+let Tlist_Enable_Fold_Column=0
+let Tlist_Compact_Format=1
+let Tlist_WinWidth=28
+let Tlist_Exit_OnlyWindow=1
+let Tlist_File_Fold_Auto_Close = 1
+
+" omniCppComplete
+let CppOmni_GlobalScopeSearch = 0
+let OmniCpp_DisplayMode = 1
+let OmniCpp_SelectFirstItem = 2
+"let CppOmni_ClassScopeCompletionMethod = 1
+" do not show preview window for tag
+"set completeopt-=menu
+set completeopt-=preview
+
+" testing :D
+map <S-F1> <Esc>vawy<CR>:execute '!cat '.@".'.txt'<CR>
+
+" functions
+
+function! s:insert_gates()
+    let gatename = substitute(toupper(expand("%:t")), "\\.", "_", "g")
+    execute "normal i#ifndef " . gatename
+    execute "normal o#define " . gatename . "\n\n\n"
+    execute "normal Go#endif /* " . gatename . " */\n"
+    normal kkk
+endfunction
+command! -nargs=0 PragmaOnce call s:insert_gates()
+
+function! s:translate_word()
+    let s:dict    = "sdcv"
+    let s:phrase  = expand("<cword>")
+    let s:tmpfile = tempname()
+
+    silent execute "!" . s:dict . " " . s:phrase . " > " . s:tmpfile
+
+    let s:lines = system("wc -l " . s:tmpfile . "| awk '{print $1}'")
+
+    if s:lines == 0
+        echo s:phrase . ": Not found."
+    else
+        execute "botright sp " . s:tmpfile
+    end
+endfun
+command! -nargs=0 Translate call s:translate_word()
+
+function! s:ctags_gen()
+    execute '!ctags -R --c++-kinds=+p --fields=+ianS  --extra=+q .'
+endfun
+command! -nargs=0 Ctags call s:ctags_gen()
+
+" remove all tabs when saving file
+"fun RemoveTabs()
+    "silent execute ":%s/\t\\+/\ \ \ \ /g"
+"endfun
+":autocmd BufWrite *.cpp call RemoveTabs()
+
+source ~/.vim/mappings.vim
+
+python << EOF
+import os
+import sys
+import vim
+for p in sys.path:
+    if os.path.isdir(p):
+        vim.command(r"set path+=%s" % (p.replace(" ", r"\ ")))
+EOF
+
+python << EOL
+import vim
+def EvaluateCurrentRange():
+    eval(compile('\n'.join(vim.current.range),'','exec'),globals())
+EOL
+map <C-h> :py EvaluateCurrentRange()<CR>
+
+python << EOF
+def SetBreakpoint():
+    import re
+    nLine = int( vim.eval( 'line(".")'))
+
+    strLine = vim.current.line
+    strWhite = re.search( '^(\s*)', strLine).group(1)
+
+    vim.current.buffer.append(
+       "%(space)spdb.set_trace() %(mark)s Breakpoint %(mark)s" %
+         {'space':strWhite, 'mark': '#' * 30}, nLine - 1)
+
+    for strLine in vim.current.buffer:
+        if strLine == "import pdb":
+            break
+    else:
+        vim.current.buffer.append( 'import pdb', 0)
+        vim.command( 'normal j1')
+
+        #vim.command( 'map <f7> :py SetBreakpoint()<cr>')
+
+def RemoveBreakpoints():
+    import re
+
+    nCurrentLine = int( vim.eval( 'line(".")'))
+
+    nLines = []
+    nLine = 1
+    for strLine in vim.current.buffer:
+        if strLine == "import pdb" or strLine.lstrip()[:15] == "pdb.set_trace()":
+            nLines.append( nLine)
+        nLine += 1
+
+    nLines.reverse()
+
+    for nLine in nLines:
+        vim.command( "normal %dG" % nLine)
+        vim.command( "normal dd")
+        if nLine < nCurrentLine:
+            nCurrentLine -= 1
+
+    vim.command( "normal %dG" % nCurrentLine)
+
+    #vim.command( "map <s-f7> :py RemoveBreakpoints()<cr>")
+EOF
+
