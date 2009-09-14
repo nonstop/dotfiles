@@ -1,0 +1,76 @@
+#!/bin/sh
+
+PS1='\e[32;40m\u@\H[\W]$ \e[0m'
+PS2='> '
+PS3='>> '
+PS4='+ '
+#BLACK='\E[1;30m' BLUE='\e[1;34m' CYAN='\e[1;36m' GREEN='\E[1;32m'
+#MAGENTA='\E[1;35m' RED='\e[1;31m' WHITE='\E[1;37m' YELLOW='\E[1;33m'
+
+# do not override history from several instances
+# but append it
+shopt -s histappend
+PROMPT_COMMAND='history -a'
+#PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+# remove duplicates
+export HISTIGNORE="&:[bf]g:exit"
+# do not break long commands into several lines
+shopt -s cmdhist
+
+declare -x PAGER='less'
+if which most &> /dev/null
+then
+    declare -x MANPAGER='most'
+fi
+
+if which vim &> /dev/null
+then
+    declare -x EDITOR='vim'
+elif which elvis &> /dev/null
+then
+    declare -x EDITOR='elvis'
+else
+    declare -x EDITOR='vi'
+fi
+
+declare -x VISUAL="${EDITOR}"
+declare -x FCEDIT="${EDITOR}"
+
+declare -x GREP_OPTIONS='--color=auto'
+declare -x GREP_COLOR='1;32'
+
+function rmd { rm -fr $@; }
+function rmlog { rm -f *.log; }
+function e { ${EDITOR} $@; }
+function dmsg { dmesg | $PAGER; }
+function ff { find . -type f -iname '*'$*'*' -ls; }
+function swap
+{ 
+    local TMPFILE=tmp.$$;
+    mv "$1" $TMPFILE;
+    mv "$2" "$1";
+    mv $TMPFILE "$2";
+}
+
+alias ..='cd ..'
+alias cd..='cd ..'
+alias Ctags='ctags -R --c++-kinds=+p --fields=+ianS  --extra=+q .'
+alias cal='cal -m'
+alias df='df -kTh'
+alias du='du -khs'
+alias fortune='fortune -a'
+alias csvn='colorsvn'
+alias lk='ls -lSr'
+alias ll='ls -l'
+alias ls='ls -hF --color=auto'
+alias lx='ls -lXB'
+alias tree='tree -Csu'
+alias tra='sdcv'
+alias srcgrep='find . -name "*[ch]" | xargs grep'
+
+export PYTHONUSERBASE=$HOME/local
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
+export PATH=$PATH:$QTDIR/bin:$HOME/bin:$PYTHONUSERBASE/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
+
+. ~/.svn_bash_completion
