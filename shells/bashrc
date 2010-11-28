@@ -1,6 +1,7 @@
 #!/bin/sh
 
-PS1='\e[32;40m\u@\H[\W]$ \e[0m'
+#PS1='\e[32;40m\u@\H[\W]$ \e[0m'
+PS1='\e[32m\u@\H[\W]$ \e[0m'
 PS2='> '
 PS3='>> '
 PS4='+ '
@@ -17,11 +18,18 @@ export HISTIGNORE="&:[bf]g:exit"
 # do not break long commands into several lines
 shopt -s cmdhist
 
-declare -x PAGER='less'
-if which most &> /dev/null
-then
-    declare -x MANPAGER='most'
+if [ -f ~/.dir_colors ]; then
+    eval `dircolors ~/.dir_colors`
 fi
+
+declare -x PAGER='less'
+export LESS_TERMCAP_mb=$'\E[32m'
+export LESS_TERMCAP_md=$'\E[32m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[32m'
 
 if which vim &> /dev/null
 then
@@ -70,7 +78,12 @@ alias srcgrep='find . -name "*[ch]" | xargs grep'
 
 export PYTHONUSERBASE=$HOME/local
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
-export PATH=$PATH:$QTDIR/bin:$HOME/bin:$PYTHONUSERBASE/bin
+export PATH=$HOME/bin:$PATH:$PYTHONUSERBASE/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
+
+export GOROOT=$HOME/src/go
+export GOOS=linux
+export GOARCH=386
+export GOBIN=$HOME/bin
 
 . ~/.svn_bash_completion

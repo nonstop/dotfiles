@@ -18,6 +18,7 @@ set number          " show line numbers
 set ls=2            " allways show status line
 set title           " show title in console title bar
 set nostartofline   " don't jump to first character when paging
+"set colorcolumn=100
 filetype on         " filetype detection
 filetype plugin on
 filetype indent on
@@ -43,14 +44,17 @@ set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P\ %{strftime(\"%a\ %b\ %d\ -\ %H
 "set statusline=%<%F%h%m%r%h%w%y%=\ lin:%l\,%L\ col:%c%V\ pos:%o%=\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
 
 " colorscheme
+set t_Co=256
+set background=dark
 if has("gui_running") && (&t_Co > 2)
     "set cursorline      " highlight current line
     set guioptions-=T "get rid of toolbar
     set guioptions-=m "get rid of menu
     set background=dark
-    "colorscheme moria
-    colorscheme c16gui
+    colorscheme moria
+    "colorscheme c16gui
     if has("gui_gtk2")
+        "set guifont=Droid\ Sans\ Mono\ 10
         set guifont=Terminus\ 12
     elseif has("x11")
         set guifont=--xos4-terminus-medium-*-*-*-16-*-koi8-r
