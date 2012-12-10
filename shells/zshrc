@@ -18,12 +18,27 @@ fg_white=$'%{\e[1;37m%}'
 fg_black=$'%{\e[0;30m%}'
 export SHELL=`which zsh`
 ### PROMPT ###
-PS1="${fg_green}%n@%m[%~]$ ${fg_light_gray}"
+#PS1="${fg_green}%n@%m[%~]$ ${fg_light_gray}"
+PS1="${fg_green}%n@%m[%1d]$ ${fg_light_gray}"
+case $TERM in
+    xterm*)
+        precmd () {print -Pn "\e]0;%n@%m: %~\a"}
+        ;;
+    *)
+        ;;
+esac
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=5000
+SAVEHIST=5000
+## Игнopupoвaть вce пoвтopeнuя команд
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+## Игнopupo лишние пpoбeлы
+setopt HIST_IGNORE_SPACE
+## Удалять из файл истории пустые строки
+setopt HIST_REDUCE_BLANKS
 setopt appendhistory extendedglob
 unsetopt beep
 bindkey -e
@@ -36,16 +51,41 @@ bindkey "`echotc @7`" end-of-line
 bindkey "`echotc kD`" delete-char
 #bindkey '`echotc kI`" expand-word
 
-
 autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
-export PYTHONUSERBASE=$HOME/local
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
-export PATH=$HOME/bin:$PATH:$PYTHONUSERBASE/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
+function rmd { rm -fr $@; }
+function rmlog { rm -f *.log; }
+function e { ${EDITOR} $@; }
+function dmsg { dmesg | $PAGER; }
+function ff { find . -type f -iname '*'$*'*' -ls; }
+function swap
+{ 
+    local TMPFILE=tmp.$$;
+    mv "$1" $TMPFILE;
+    mv "$2" "$1";
+    mv $TMPFILE "$2";
+}
 
+function hgrep () 
+{
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp| xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+function strgrep () 
+{
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx| LC_ALL=C xargs /usr/bin/grep --color=auto "`echo $@ | iconv -t cp866`" /dev/null
+}
+function srcgrep () 
+{
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+function sqlgrep () 
+{
+    find . -type f -name \*.sql | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+
+# aliases
 alias ..='cd ..'
 alias cd..='cd ..'
 alias cal='cal -m'
@@ -58,5 +98,46 @@ alias ls='ls -hF --color=auto'
 alias lx='ls -lXB'
 alias tree='tree -Csu'
 alias tra='sdcv'
-alias srcgrep='find . -name "*[ch]" | xargs grep'
+if which rlwrap &> /dev/null; then
+    alias telnet='rlwrap telnet'
+    alias guile='rlwrap guile'
+    alias gdb='rlwrap gdb'
+    alias sqlplus='rlwrap sqlplus'
+fi
 
+# colors for less as MANPAGER
+export MANPAGER=less
+export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
+export LESS_TERMCAP_md=$'\E[01;32;5;74m'  # begin bold
+export LESS_TERMCAP_me=$'\E[0m'           # end mode
+export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
+export LESS_TERMCAP_so=$'\E[32;5;246m'    # begin standout-mode - info box
+export LESS_TERMCAP_ue=$'\E[0m'           # end underline
+export LESS_TERMCAP_us=$'\E[04;32;5;146m' # begin underline
+
+export PYTHONUSERBASE=$HOME/local
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
+export PATH=$HOME/bin:$PATH:$PYTHONUSERBASE/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
+
+export PAGER='less'
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;32'
+
+if which vim &> /dev/null; then
+    export EDITOR='vim'
+elif which elvis &> /dev/null; then
+    export EDITOR='elvis'
+else
+    export EDITOR='vi'
+fi
+
+export VISUAL="${EDITOR}"
+export FCEDIT="${EDITOR}"
+
+compdef -d git
+compdef -d svn
+
+if  [ -f ~/.local_sh ]  ; then
+    . ~/.local_sh
+fi
