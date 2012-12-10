@@ -1,0 +1,5 @@
+-I/usr/local/include/
+-I/usr/lib/clang/3.0/include/
+-I/usr/include/
+-I/usr/lib/gcc/i486-slackware-linux/4.7.1//include/
+-I/usr/lib/gcc/i486-slackware-linux/4.7.1//include-fixed/

@@ -1,0 +1,7 @@
+class ${class name}
+{
+public:
+    ${class name};
+    ~${class name};
+private:
+};

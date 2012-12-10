@@ -1,6 +1,6 @@
 " global appearance
 set nocp
-set history=50
+set history=150
 set tabstop=4       " numbers of spaces of tab character
 set softtabstop=4   " number of spaces that <Tab> uses while editing
 set shiftwidth=4    " numbers of spaces to (auto)indent
@@ -18,7 +18,9 @@ set number          " show line numbers
 set ls=2            " allways show status line
 set title           " show title in console title bar
 set nostartofline   " don't jump to first character when paging
-"set colorcolumn=100
+if version >= 703
+  set colorcolumn=100
+endif
 filetype on         " filetype detection
 filetype plugin on
 filetype indent on
@@ -28,30 +30,36 @@ set hidden          " enable switching between buffers without saving them
 if has('syntax') && (&t_Co > 2)
   syntax on
 endif
+set fileencodings=utf8,cp866
+
+set list
+set listchars=tab:->
+set listchars+=trail:·
 
 "noremap Bs Del
 "noremap Del Bs
 "set backspace=2
 set backspace=indent,eol,start
 " allows marking/pasting with the mouse also on 'not gui vim'
-set mouse=a         
+set mouse=a
 
 set backupdir=~/.vimbackup,/tmp
 set directory=~/.vimbackup,/tmp
 
 " statusline
-set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
+"set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
+set statusline=%<%f\ \ \ %{&fileencoding}\ %h%m%r%=%-14.(%l,%c%V%)\ %P\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
 "set statusline=%<%F%h%m%r%h%w%y%=\ lin:%l\,%L\ col:%c%V\ pos:%o%=\ %{strftime(\"%a\ %b\ %d\ -\ %H:%M\")}
 
 " colorscheme
 set t_Co=256
 set background=dark
 if has("gui_running") && (&t_Co > 2)
-    "set cursorline      " highlight current line
+    set cursorline      " highlight current line
     set guioptions-=T "get rid of toolbar
     set guioptions-=m "get rid of menu
     set background=dark
-    colorscheme moria
+    colorscheme xoria256 "moria
     "colorscheme c16gui
     if has("gui_gtk2")
         "set guifont=Droid\ Sans\ Mono\ 10
@@ -69,7 +77,7 @@ if has("gui_running") && (&t_Co > 2)
 
 else
     set background=dark
-    colorscheme desert
+    colorscheme slate
 endif
 
 " Make 'gf' rebound to last cursor position (line *and* column)
@@ -81,6 +89,7 @@ fun InitSlackBuild()
     set filetype=sh
 endfun
 
+:autocmd BufRead,BufNewFile *.ts set ft=ts
 :autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 ":autocmd BufRead * silent '" 
 ":autocmd BufRead wscript set filetype=python
@@ -90,6 +99,7 @@ endfun
 :autocmd BufNewFile *.slack-desc 0r ~/.vim/templates/slack-desc.tpl
 :autocmd BufNewFile slack-desc 0r ~/.vim/templates/slack-desc.tpl
 :autocmd BufNewFile *.SlackBuild call InitSlackBuild()
+:autocmd BufRead *.go set ft=go
 
 " all neccessary initialization for editing python scripts
 fun InitPython()
@@ -103,8 +113,8 @@ fun InitPython()
 endfun
 autocmd BufRead SConstruct set ft=python
 autocmd BufRead SConscript set ft=python
+"autocmd FileType c setlocal omnifunc=ccomplete#Complete
 autocmd FileType python call InitPython()
-autocmd FileType c setlocal omnifunc=ccomplete#Complete
 autocmd FileType sql set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType cmake set tabstop=2 softtabstop=2 shiftwidth=2
 
@@ -119,28 +129,62 @@ let Tlist_WinWidth=28
 let Tlist_Exit_OnlyWindow=1
 let Tlist_File_Fold_Auto_Close = 1
 
+let g:tagbar_right = 1
+let g:tagbar_width = 40
+let g:tagbar_iconchars = ['+', '-']
+let g:tagbar_sort = 0
+
 " omniCppComplete
-let CppOmni_GlobalScopeSearch = 0
-let OmniCpp_DisplayMode = 1
-let OmniCpp_SelectFirstItem = 2
+"let CppOmni_GlobalScopeSearch = 0
+"let OmniCpp_DisplayMode = 1
+"let OmniCpp_SelectFirstItem = 2
 "let CppOmni_ClassScopeCompletionMethod = 1
-" do not show preview window for tag
-"set completeopt-=menu
+
+let g:clang_auto_select=1
+let g:clang_complete_auto=0
+let g:clang_use_library=1
+"let g:clang_periodic_quickfix=1
+"let g:clang_complete_copen=0
+"let g:clang_close_preview=1
+
+"" do not show preview window for tag
 set completeopt-=preview
 
-" testing :D
-map <S-F1> <Esc>vawy<CR>:execute '!cat '.@".'.txt'<CR>
+" NERDCommenter
+let g:NERDShutUp=1
 
 " functions
 
-function! s:insert_gates()
-    let gatename = substitute(toupper(expand("%:t")), "\\.", "_", "g")
+function! s:match_long_lines(len)
+    execute "match LongLines /\\%>".a:len."v.\\+/"
+endfunction
+command  -nargs=1 MatchLongLines call s:match_long_lines(<f-args>)
+
+function! s:insert_gates(arg)
+    let gatename = toupper(a:arg) . "_" . substitute(toupper(expand("%:t")), "\\.", "_", "g")
     execute "normal i#ifndef " . gatename
     execute "normal o#define " . gatename . "\n\n\n"
     execute "normal Go#endif /* " . gatename . " */\n"
     normal kkk
 endfunction
-command! -nargs=0 PragmaOnce call s:insert_gates()
+command -nargs=1 PragmaOnce call s:insert_gates(<f-args>)
+
+function! s:source_format_file()
+    execute "!src_fmt %:."
+endfunction
+command -nargs=0 SourceFormatFile call s:source_format_file()
+
+function! s:source_format()
+    execute "'<,'>!src_fmt -"
+endfunction
+command -range -nargs=0 SourceFormat call s:source_format()
+
+function! s:svn_annotate()
+    let lineNum = line('.')
+    execute '1,$!svn ann %'
+    execute "normal ".lineNum."gg"
+endfun
+command -nargs=0 SvnAnn call s:svn_annotate()
 
 function! s:translate_word()
     let s:dict    = "sdcv"
@@ -160,7 +204,8 @@ endfun
 command! -nargs=0 Translate call s:translate_word()
 
 function! s:ctags_gen()
-    execute '!ctags -R --c++-kinds=+p --fields=+ianS  --extra=+q .'
+    execute '!ctags -R --c++-kinds=+p --langmap=c:.c.pc,c++:.c++.cc.cpp.cxx.h.h++.hh.hp.hpp.hxx.C.H.pcc --fields=+ianS  --extra=+q .'
+    execute '!cscope -b -k -R'
 endfun
 command! -nargs=0 Ctags call s:ctags_gen()
 
@@ -170,67 +215,26 @@ command! -nargs=0 Ctags call s:ctags_gen()
 "endfun
 ":autocmd BufWrite *.cpp call RemoveTabs()
 
-source ~/.vim/mappings.vim
+try
+    source ~/.vim/mappings.vim
+    source ~/.vim/local.vim
+catch
+endtry
 
-python << EOF
-import os
-import sys
-import vim
-for p in sys.path:
-    if os.path.isdir(p):
-        vim.command(r"set path+=%s" % (p.replace(" ", r"\ ")))
-EOF
+function! NonstopIndent()
+    let l:cline_num = line('.')
+    let l:pline_num = prevnonblank(l:cline_num - 1)
+    let l:pline = getline(l:pline_num)
+    let l:retv = cindent('.')
+    while l:pline =~# '\(^\s*{\s*\|^\s*//\|^\s*/\*\|\*/\s*$\)'
+        let l:pline_num = prevnonblank(l:pline_num - 1)
+        let l:pline = getline(l:pline_num)
+    endwhile
+    if l:pline =~# '^\s*namespace.*'
+        let l:retv = 0
+    endif
+    return l:retv
+endfunction
 
-python << EOL
-import vim
-def EvaluateCurrentRange():
-    eval(compile('\n'.join(vim.current.range),'','exec'),globals())
-EOL
-map <C-h> :py EvaluateCurrentRange()<CR>
-
-python << EOF
-def SetBreakpoint():
-    import re
-    nLine = int( vim.eval( 'line(".")'))
-
-    strLine = vim.current.line
-    strWhite = re.search( '^(\s*)', strLine).group(1)
-
-    vim.current.buffer.append(
-       "%(space)spdb.set_trace() %(mark)s Breakpoint %(mark)s" %
-         {'space':strWhite, 'mark': '#' * 30}, nLine - 1)
-
-    for strLine in vim.current.buffer:
-        if strLine == "import pdb":
-            break
-    else:
-        vim.current.buffer.append( 'import pdb', 0)
-        vim.command( 'normal j1')
-
-        #vim.command( 'map <f7> :py SetBreakpoint()<cr>')
-
-def RemoveBreakpoints():
-    import re
-
-    nCurrentLine = int( vim.eval( 'line(".")'))
-
-    nLines = []
-    nLine = 1
-    for strLine in vim.current.buffer:
-        if strLine == "import pdb" or strLine.lstrip()[:15] == "pdb.set_trace()":
-            nLines.append( nLine)
-        nLine += 1
-
-    nLines.reverse()
-
-    for nLine in nLines:
-        vim.command( "normal %dG" % nLine)
-        vim.command( "normal dd")
-        if nLine < nCurrentLine:
-            nCurrentLine -= 1
-
-    vim.command( "normal %dG" % nCurrentLine)
-
-    #vim.command( "map <s-f7> :py RemoveBreakpoints()<cr>")
-EOF
-
+set cinoptions=:0,l1,g0
+set indentexpr=NonstopIndent()

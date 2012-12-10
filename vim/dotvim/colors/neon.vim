@@ -17,7 +17,6 @@ hi Normal       guifg=#f0f0f0 guibg=#303030
 " Search
 hi IncSearch    gui=UNDERLINE guifg=#80ffff guibg=#0060c0
 hi Search       gui=NONE guifg=#ffffa8 guibg=#808000
-" hi Search       gui=NONE guifg=#b0ffb0 guibg=#008000
 
 " Messages
 hi ErrorMsg     gui=BOLD guifg=#ffa0ff guibg=NONE
@@ -39,9 +38,14 @@ hi DiffDelete   gui=NONE guifg=#a0d0ff guibg=#0020a0
 hi DiffAdd      gui=NONE guifg=#a0d0ff guibg=#0020a0
 
 " Cursor
-hi Cursor       gui=NONE guifg=#70ffc0 guibg=#8040ff
-hi lCursor      gui=NONE guifg=#ffffff guibg=#8800ff
+" (   )
+"hi Cursor       gui=NONE guifg=#70ffc0 guibg=#8040ff
+hi Cursor       gui=NONE guifg=#70ffc0 guibg=#ff0000
+hi lCursor      gui=NONE guifg=#ffffff guibg=#8040ff
 hi CursorIM     gui=NONE guifg=#ffffff guibg=#8800ff
+
+" Matching braces
+hi MatchParen   gui=NONE guifg=#ffffff guibg=#808000
 
 " Fold
 hi Folded       gui=NONE guifg=#40f0f0 guibg=#006090

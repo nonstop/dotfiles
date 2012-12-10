@@ -40,15 +40,20 @@ imap <S-Esc> <Esc> :bd<CR>i
 " switch buffers
 nmap <C-p> :bp<CR>
 nmap <C-n> :bn<CR>
-" save buffer
-nmap <F2> :w<CR>
-" save buffer
-imap <F2> <Esc>:w<CR>i
-" save all buffers
+" save changed buffer
+noremap <F2> :up<CR>
+inoremap <F2> <C-o>:up<CR>
+" save all changed buffers
 nmap <S-F2> :wa<CR>
 " buffer list
+let g:bufExplorerDefaultHelp=0
 nmap <S-Tab> :BufExplorer<CR>
 nmap <S-F4> :BufExplorer<CR>
+
+" Really useful!
+"  In visual mode when you press * or # to search for the current selection
+vnoremap <silent> * :call VisualSearch('f')<CR>
+vnoremap <silent> # :call VisualSearch('b')<CR>
 
 " quit
 imap <F12> <Esc>:qa<CR>
@@ -56,9 +61,23 @@ nmap <F12> :qa<CR>
 imap <S-F12> <Esc>:q!<CR>
 nmap <S-F12> :q!<CR>
 
-" save all & make
-imap <F7> <Esc>:wa<CR>:make<CR>
-nmap <F7> :wa<CR>:make<CR>
+function Make()
+    let curr_dir = expand("%:h")
+    if (curr_dir == "")
+        let curr_dir = "."
+    endif
+    exec 'lcd ' . curr_dir
+    let filename = expand("%:t:r") . ".o"
+    echo "compiling " . filename . "..."
+    silent exec 'make ' . filename . ' > /tmp/errors 2>&1'
+    exec "cf /tmp/errors"
+    exec "cw"
+    exec 'lcd -'
+endfun
+
+" save & make current file.o
+imap <silent> <F7> <Esc>:up<CR>:call Make()<CR>
+nmap <silent> <F7> :up<CR>:call Make()<CR>
 
 " save all & make clean & make
 imap <S-F7> <Esc>:wa<CR>:make<Space>clean<CR>:make<CR>
@@ -74,8 +93,12 @@ nmap <S-F8> :cclose<CR>
 imap <C-F8> <Esc>:cnext<CR>i
 nmap <C-F8> :cnext<CR>
 
+" jump to tag in insert mode
+imap <C-]> <Esc><C-]>i
+
 " TagList plugin
-noremap <silent> <F9> :TlistToggle<CR>
+"noremap <silent> <F9> :TlistToggle<CR>
+noremap <silent> <F9> :TagbarToggle<CR>
 
 " map < & > to indent blocks
 vnoremap < <gv
