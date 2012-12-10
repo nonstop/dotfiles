@@ -1,35 +1,44 @@
 #!/bin/sh
 
-#PS1='\e[32;40m\u@\H[\W]$ \e[0m'
-PS1='\e[32m\u@\H[\W]$ \e[0m'
+PS1='\[\e[32;40m\]\u@\H[\W]$\[\e[0m\] '
 PS2='> '
 PS3='>> '
 PS4='+ '
 #BLACK='\E[1;30m' BLUE='\e[1;34m' CYAN='\e[1;36m' GREEN='\E[1;32m'
 #MAGENTA='\E[1;35m' RED='\e[1;31m' WHITE='\E[1;37m' YELLOW='\E[1;33m'
 
+case $TERM in
+    xterm*)
+        PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007"'
+        ;;
+    *)
+        ;;
+esac
+
 # do not override history from several instances
 # but append it
 shopt -s histappend
-PROMPT_COMMAND='history -a'
-#PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+export HISTCONTROL="ignoreboth:erasedups"
+export HISTSIZE="16384" # commands to remember
+export HISTFILESIZE="65535" # lines to remember
 # remove duplicates
-export HISTIGNORE="&:[bf]g:exit"
+export HISTIGNORE="&:ls:[bf]g:exit"
 # do not break long commands into several lines
 shopt -s cmdhist
 
-if [ -f ~/.dir_colors ]; then
-    eval `dircolors ~/.dir_colors`
-fi
+# colors for less as MANPAGER
+export MANPAGER=less
+export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
+export LESS_TERMCAP_md=$'\E[01;32;5;74m'  # begin bold
+export LESS_TERMCAP_me=$'\E[0m'           # end mode
+export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
+export LESS_TERMCAP_so=$'\E[32;5;246m'    # begin standout-mode - info box
+export LESS_TERMCAP_ue=$'\E[0m'           # end underline
+export LESS_TERMCAP_us=$'\E[04;32;5;146m' # begin underline
 
 declare -x PAGER='less'
-export LESS_TERMCAP_mb=$'\E[32m'
-export LESS_TERMCAP_md=$'\E[32m'
-export LESS_TERMCAP_me=$'\E[0m'
-export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;33m'
-export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[32m'
+declare -x GREP_OPTIONS='--color=auto'
+declare -x GREP_COLOR='1;32'
 
 if which vim &> /dev/null
 then
@@ -44,9 +53,6 @@ fi
 declare -x VISUAL="${EDITOR}"
 declare -x FCEDIT="${EDITOR}"
 
-declare -x GREP_OPTIONS='--color=auto'
-declare -x GREP_COLOR='1;32'
-
 function rmd { rm -fr $@; }
 function rmlog { rm -f *.log; }
 function e { ${EDITOR} $@; }
@@ -59,31 +65,55 @@ function swap
     mv "$2" "$1";
     mv $TMPFILE "$2";
 }
+hgrep () 
+{ 
+    find . -name "*[hH]" | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+strgrep () 
+{ 
+    find . -name "*[hcCH]" | LC_ALL=C xargs /usr/bin/grep --color=auto "`echo $@ | iconv -t cp866`" /dev/null
+}
+srcgrep () 
+{ 
+    find . -name "*[hcCH]" | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+sqlgrep () 
+{ 
+    find . -name "*[sql]" | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
 
 alias ..='cd ..'
 alias cd..='cd ..'
-alias Ctags='ctags -R --c++-kinds=+p --fields=+ianS  --extra=+q .'
+alias Ctags='ctags -R --c++-kinds=+p --langmap=c:.c.pc,c++:.c++.cc.cpp.cxx.h.h++.hh.hp.hpp.hxx.C.H.pcc --fields=+ianS  --extra=+q .'
 alias cal='cal -m'
 alias df='df -kTh'
 alias du='du -khs'
 alias fortune='fortune -a'
-alias csvn='colorsvn'
 alias lk='ls -lSr'
-alias ll='ls -l'
+alias lr='ls -lR'
 alias ls='ls -hF --color=auto'
+alias ll='ls -l'
 alias lx='ls -lXB'
 alias tree='tree -Csu'
 alias tra='sdcv'
-alias srcgrep='find . -name "*[ch]" | xargs grep'
+
+alias telnet='rlwrap telnet'
+alias guile='rlwrap guile'
+alias gdb='rlwrap gdb'
+alias lesslog='LESSCHARSET=dos less -r'
+alias sqlplus='rlwrap sqlplus'
+alias cde='cd ~/work/tick_serv/src'
+alias cds='cd ~/work/sirena/src'
 
 export PYTHONUSERBASE=$HOME/local
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
-export PATH=$HOME/bin:$PATH:$PYTHONUSERBASE/bin
+export PATH="$PYTHONUSERBASE/bin:$HOME/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
 
-export GOROOT=$HOME/src/go
-export GOOS=linux
-export GOARCH=386
-export GOBIN=$HOME/bin
+if [ -f ~/.dir_colors ]; then
+    eval `dircolors ~/.dir_colors`
+fi
 
-. ~/.svn_bash_completion
+if [ -f ~/.common_env ]; then
+    . ~/.common_env
+fi
