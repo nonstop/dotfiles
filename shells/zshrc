@@ -141,3 +141,6 @@ compdef -d svn
 if  [ -f ~/.local_sh ]  ; then
     . ~/.local_sh
 fi
+if [ -f ~/.dir_colors ]; then
+    eval `dircolors ~/.dir_colors`
+fi
