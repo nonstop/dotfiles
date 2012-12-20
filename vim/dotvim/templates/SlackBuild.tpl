@@ -29,7 +29,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -47,29 +47,27 @@ CXXFLAGS="$SLKCFLAGS" \
   --mandir=/usr/man
 
 [ "$JOBS" ] && make -j$JOBS || make
+[ "$DEBUG" ] && echo "make finished"
 make install DESTDIR=$PKG
 
-# Strip binaries and libraries - this can be done with 'make install-strip'
-# in many source trees, and that's usually acceptable if so, but if not, 
-# use this:
+[ "$DEBUG" ] && echo "make install done: [$PKG]"
 ( cd $PKG
-  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --no-run-if-empty --strip-unneeded 2> /dev/null \
+      echo "executables stripped" || true
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --no-run-if-empty --strip-unneeded 2> /dev/null \
+      echo "shared objects stripped" || true
 )
 
-# Compress man pages
-# If the man pages are installed to /usr/share/man instead, you'll need to either
-# add the --mandir=/usr/man flag to configure or move them manually after the
-# make install process is run.
-( cd $PKG/usr/man
-  find . -type f -exec gzip -9 {} \;
-  for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
-)
+[ -d $PKG/usr/share/man ] && mv -i $PKG/usr/share/man $PKG/usr/man
+[ -d $PKG/usr/man ] && ( cd $PKG/usr/man
+    find . -type f -exec gzip -9 {} \;
+    for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+    [ "$DEBUG" ] && echo "man pages in $PKG/usr/man gzipped" ) || true
 
-# Compress info pages and remove the package's dir file
-# If no info pages are installed by the software, don't leave this in the script
-rm -f $PKG/usr/info/dir
-gzip -9 $PKG/usr/info/*.info*
+[ -d $PKG/usr/share/info ] && mv -i $PKG/usr/share/info $PKG/usr/info
+[ -d $PKG/usr/info ] && ( cd $PKG/usr/info
+    rm -f dir && [ "`ls *.info*`" ] && gzip -9 *.info* \
+        && [ "$DEBUG" ] && echo "info pages in $PKG/usr/info gzipped" ) || true
 
 # Remove perllocal.pod and other special files that don't need to be installed,
 # as they will overwrite what's already on the system.  If this is not needed, 
@@ -83,7 +81,9 @@ gzip -9 $PKG/usr/info/*.info*
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a <documentation> $PKG/usr/doc/$PRGNAM-$VERSION
+for f in $DOCUMENTATION; do
+    [ -f "$f" ] && cp -a $f $PKG/usr/doc/$PRGNAM-$VERSION
+done
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
@@ -91,4 +91,4 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
