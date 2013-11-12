@@ -17,13 +17,19 @@ OUTPUT=${OUTPUT:-/tmp}
 
 if [ "$ARCH" = "i486" ]; then
   SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+  LIBDIRSUFFIX=""
 elif [ "$ARCH" = "i686" ]; then
   SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+  LIBDIRSUFFIX=""
 elif [ "$ARCH" = "x86_64" ]; then
   SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
 fi
 
-set -e 
+set -e
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
@@ -52,9 +58,9 @@ make install DESTDIR=$PKG
 
 [ "$DEBUG" ] && echo "make install done: [$PKG]"
 ( cd $PKG
-  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --no-run-if-empty --strip-unneeded 2> /dev/null \
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs --no-run-if-empty strip --strip-unneeded 2> /dev/null \
       echo "executables stripped" || true
-  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --no-run-if-empty --strip-unneeded 2> /dev/null \
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs --no-run-if-empty strip --strip-unneeded 2> /dev/null \
       echo "shared objects stripped" || true
 )
 
