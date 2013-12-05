@@ -1,0 +1,6 @@
+#ACTION=="add", SUBSYSTEMS=="usb", KERNEL=="sd?*", RUN+="/etc/udev/scripts/notify.sh %k"
+ACTION=="add", ENV{DEVTYPE}=="partition", RUN+="/etc/udev/scripts/add-usb-hdd.sh %k $env{ID_FS_TYPE} partition"
+ACTION=="remove", ENV{DEVTYPE}=="partition", RUN+="/etc/udev/scripts/remove-usb-hdd.sh %k"
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sdb*", RUN+="/etc/udev/scripts/add-usb-hdd.sh %k $env{ID_FS_TYPE}"
+ACTION=="remove", SUBSYSTEM=="block", KERNEL=="sdb*", RUN+="/etc/udev/scripts/remove-usb-hdd.sh %k"
+
