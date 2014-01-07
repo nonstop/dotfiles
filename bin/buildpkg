@@ -1,0 +1,7 @@
+#!/bin/sh
+[ -z "$1" ] && echo "Usage: `basename $0` package-name" && exit 1
+
+TAG=_evgeny
+TEST_BUILD=1
+
+source ./$1

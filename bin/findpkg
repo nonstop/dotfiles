@@ -1,0 +1,3 @@
+#!/bin/sh
+[ -z "$1" ] && echo "Usage: `basename $0` package-name" && exit 1
+ls /var/log/packages | grep "$1"
