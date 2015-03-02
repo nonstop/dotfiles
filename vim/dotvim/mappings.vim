@@ -27,7 +27,10 @@ menu EOL.dos  :set fileformat=dos<CR>
 menu EOL.mac  :set fileformat=mac<CR>
 map  <S-F11> :emenu EOL.<Tab>
 
-
+nnoremap <F1> <nop>
+nnoremap Q <nop>
+nnoremap K <nop>
+nnoremap ZZ <nop>
 
 "nmap <C-n><C-n> :set invnumber <CR>      " show/hide numbers
 " undo

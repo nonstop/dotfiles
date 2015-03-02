@@ -68,21 +68,29 @@ function swap
     mv $TMPFILE "$2";
 }
 
-function hgrep () 
+function hgrep ()
 {
     find . -type f -name \*.h -o -name \*.H -o -name \*.hpp| xargs /usr/bin/grep --color=auto "$@" /dev/null
 }
-function strgrep () 
+function strgrep ()
 {
-    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx| LC_ALL=C xargs /usr/bin/grep --color=auto "`echo $@ | iconv -t cp866`" /dev/null
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx| LC_ALL=C xargs /usr/bin/grep --color=auto "`echo $@ | iconv -t cp866`" /dev/null
 }
-function srcgrep () 
+function srcgrep ()
 {
-    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx | xargs /usr/bin/grep --color=auto "$@" /dev/null
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx | xargs /usr/bin/grep --color=auto "$@" /dev/null
 }
-function sqlgrep () 
+function jgrep () 
+{
+    find . -type f -name \*.java | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+function sqlgrep ()
 {
     find . -type f -name \*.sql | xargs /usr/bin/grep --color=auto "$@" /dev/null
+}
+function tsgrep ()
+{
+    find . -type f -name \*.ts | xargs /usr/bin/grep --color=auto "$@" /dev/null
 }
 
 # aliases
@@ -104,6 +112,7 @@ if which rlwrap &> /dev/null; then
     alias gdb='rlwrap gdb'
     alias sqlplus='rlwrap sqlplus'
 fi
+alias grep='grep --color=auto'
 
 # colors for less as MANPAGER
 export MANPAGER=less
@@ -115,13 +124,10 @@ export LESS_TERMCAP_so=$'\E[32;5;246m'    # begin standout-mode - info box
 export LESS_TERMCAP_ue=$'\E[0m'           # end underline
 export LESS_TERMCAP_us=$'\E[04;32;5;146m' # begin underline
 
-export PYTHONUSERBASE=$HOME/local
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
-export PATH=$HOME/bin:$PATH:$PYTHONUSERBASE/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
+export PATH=$HOME/bin:$PATH
 
 export PAGER='less'
-export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='1;32'
 
 if which vim &> /dev/null; then
