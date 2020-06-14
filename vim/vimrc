@@ -13,7 +13,6 @@ set hlsearch        " highlight searches
 set incsearch       " do incremental searching
 set autoindent      " always set autoindenting on
 set ruler           " show the cursor position all the time
-set nobackup        " do not keep a backup file
 set number          " show line numbers
 set ls=2            " allways show status line
 set title           " show title in console title bar
@@ -43,6 +42,9 @@ set backspace=indent,eol,start
 " allows marking/pasting with the mouse also on 'not gui vim'
 set mouse=a
 
+"set nobackup
+"set noundofile
+set undodir=~/.vimbackup,/tmp
 set backupdir=~/.vimbackup,/tmp
 set directory=~/.vimbackup,/tmp
 
@@ -62,6 +64,9 @@ if has("gui_running") && (&t_Co > 2)
     colorscheme xoria256 "moria
     "colorscheme c16gui
     if has("gui_gtk2")
+        "set guifont=Droid\ Sans\ Mono\ 10
+        set guifont=Terminus\ 12
+    elseif has("gui_gtk3")
         "set guifont=Droid\ Sans\ Mono\ 10
         set guifont=Terminus\ 12
     elseif has("x11")
@@ -101,6 +106,8 @@ endfun
 :autocmd BufNewFile *.SlackBuild call InitSlackBuild()
 :autocmd BufRead *.go set ft=go
 
+au FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null
+
 " all neccessary initialization for editing python scripts
 fun InitPython()
     setlocal keywordprg=pydoc
@@ -117,6 +124,7 @@ autocmd BufRead SConscript set ft=python
 autocmd FileType python call InitPython()
 autocmd FileType sql set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType cmake set tabstop=2 softtabstop=2 shiftwidth=2
+autocmd FileType dart set tabstop=2 softtabstop=2 shiftwidth=2
 
 " plugins' settings
 

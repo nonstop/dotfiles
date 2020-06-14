@@ -10,7 +10,8 @@ fg_light_gray=$'%{\e[0;37m%}'
 fg_dark_gray=$'%{\e[1;30m%}'
 fg_light_blue=$'%{\e[1;34m%}'
 fg_light_green=$'%{\e[1;32m%}'
-fg_light_cyan=$'%{\e[1;36m%}' fg_light_red=$'%{\e[1;31m%}'
+fg_light_cyan=$'%{\e[1;36m%}'
+fg_light_red=$'%{\e[1;31m%}'
 fg_light_purple=$'%{\e[1;35m%}'
 fg_no_colour=$'%{\e[0m%}'
 
@@ -46,8 +47,8 @@ bindkey -e
 # The following lines were added by compinstall
 bindkey "`echotc kP`" backward-word
 bindkey "`echotc kN`" forward-word
-bindkey "`echotc kh`" beginning-of-line
-bindkey "`echotc @7`" end-of-line
+bindkey  "^[[H"   beginning-of-line
+bindkey  "^[[F"   end-of-line
 bindkey "`echotc kD`" delete-char
 #bindkey '`echotc kI`" expand-word
 
@@ -60,6 +61,7 @@ function rmlog { rm -f *.log; }
 function e { ${EDITOR} $@; }
 function dmsg { dmesg | $PAGER; }
 function ff { find . -type f -iname '*'$*'*' -ls; }
+function rmorigrej { find . -type f -name \*.rej -exec rm {} \; ; find . -type f -name \*.orig -exec rm {} \; ; }
 function swap
 { 
     local TMPFILE=tmp.$$;
@@ -116,15 +118,14 @@ alias grep='grep --color=auto'
 
 # colors for less as MANPAGER
 export MANPAGER=less
-export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
-export LESS_TERMCAP_md=$'\E[01;32;5;74m'  # begin bold
-export LESS_TERMCAP_me=$'\E[0m'           # end mode
-export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
-export LESS_TERMCAP_so=$'\E[32;5;246m'    # begin standout-mode - info box
-export LESS_TERMCAP_ue=$'\E[0m'           # end underline
-export LESS_TERMCAP_us=$'\E[04;32;5;146m' # begin underline
+export LESS_TERMCAP_mb=$'\E[01;31m'        # begin blinking
+export LESS_TERMCAP_md=$'\E[01;32;01:74m'  # begin bold
+export LESS_TERMCAP_me=$'\E[0m'            # end mode
+export LESS_TERMCAP_se=$'\E[0m'            # end standout-mode
+export LESS_TERMCAP_so=$'\E[32;246m'       # begin standout-mode - info box
+export LESS_TERMCAP_ue=$'\E[0m'            # end underline
+export LESS_TERMCAP_us=$'\E[04;32;01:146m' # begin underline
 
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
 export PATH=$HOME/bin:$PATH
 
 export PAGER='less'
