@@ -72,27 +72,27 @@ function swap
 
 function hgrep ()
 {
-    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp| xargs /usr/bin/grep --color=auto "$@" /dev/null
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp| xargs /usr/bin/grep -a --color=auto "$@" /dev/null
 }
 function strgrep ()
 {
-    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx| LC_ALL=C xargs /usr/bin/grep --color=auto "`echo $@ | iconv -t cp866`" /dev/null
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx| LC_ALL=C xargs /usr/bin/grep -a --color=auto "`echo $@ | iconv -t cp866`" /dev/null
 }
 function srcgrep ()
 {
-    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx | xargs /usr/bin/grep --color=auto "$@" /dev/null
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
 }
 function jgrep () 
 {
-    find . -type f -name \*.java | xargs /usr/bin/grep --color=auto "$@" /dev/null
+    find . -type f -name \*.java | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
 }
 function sqlgrep ()
 {
-    find . -type f -name \*.sql | xargs /usr/bin/grep --color=auto "$@" /dev/null
+    find . -type f -name \*.sql | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
 }
 function tsgrep ()
 {
-    find . -type f -name \*.ts | xargs /usr/bin/grep --color=auto "$@" /dev/null
+    find . -type f -name \*.ts | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
 }
 
 # aliases

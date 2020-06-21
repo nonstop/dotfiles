@@ -36,6 +36,7 @@ set listchars=tab:->
 set listchars+=trail:·
 
 "noremap Bs Del
+"r
 "noremap Del Bs
 "set backspace=2
 set backspace=indent,eol,start
@@ -44,6 +45,8 @@ set mouse=a
 
 "set nobackup
 "set noundofile
+set noundofile
+set nobackup
 set undodir=~/.vimbackup,/tmp
 set backupdir=~/.vimbackup,/tmp
 set directory=~/.vimbackup,/tmp
@@ -62,6 +65,7 @@ if has("gui_running") && (&t_Co > 2)
     set guioptions-=m "get rid of menu
     set background=dark
     colorscheme xoria256 "moria
+    colorscheme murphy
     "colorscheme c16gui
     if has("gui_gtk2")
         "set guifont=Droid\ Sans\ Mono\ 10
@@ -120,11 +124,11 @@ fun InitPython()
 endfun
 autocmd BufRead SConstruct set ft=python
 autocmd BufRead SConscript set ft=python
-"autocmd FileType c setlocal omnifunc=ccomplete#Complete
 autocmd FileType python call InitPython()
 autocmd FileType sql set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType cmake set tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType dart set tabstop=2 softtabstop=2 shiftwidth=2
+au FileType json setlocal equalprg=python\ -m\ json.tool
 
 " plugins' settings
 
@@ -142,21 +146,14 @@ let g:tagbar_width = 40
 let g:tagbar_iconchars = ['+', '-']
 let g:tagbar_sort = 0
 
-" omniCppComplete
-"let CppOmni_GlobalScopeSearch = 0
-"let OmniCpp_DisplayMode = 1
-"let OmniCpp_SelectFirstItem = 2
-"let CppOmni_ClassScopeCompletionMethod = 1
-
 let g:clang_auto_select=1
 let g:clang_complete_auto=0
 let g:clang_use_library=1
-"let g:clang_periodic_quickfix=1
-"let g:clang_complete_copen=0
-"let g:clang_close_preview=1
 
-"" do not show preview window for tag
+" do not show preview window for tag
 set completeopt-=preview
+" do not scan includes
+set complete-=i
 
 " NERDCommenter
 let g:NERDShutUp=1

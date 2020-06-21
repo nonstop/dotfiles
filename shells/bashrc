@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PS1='\[\e[32;40m\]\u@\H[\W]$\[\e[0m\] '
+PS1='\[\e[32;40m\]\u@\H[\W]\$\[\e[0m\] '
 PS2='> '
 PS3='>> '
 PS4='+ '
@@ -10,6 +10,7 @@ PS4='+ '
 case $TERM in
     xterm*)
         PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007"'
+        export TERM=xterm
         ;;
     *)
         ;;
@@ -26,6 +27,68 @@ export HISTIGNORE="&:ls:[bf]g:exit"
 # do not break long commands into several lines
 shopt -s cmdhist
 
+function rmd { rm -fr $@; }
+function rmlog { rm -f *.log; }
+function e { ${EDITOR} $@; }
+function dmsg { dmesg | $PAGER; }
+function ff { find . -type f -iname '*'$*'*' -ls; }
+function rmorigrej { find . -type f -name \*.rej -exec rm {} \; ; find . -type f -name \*.orig -exec rm {} \; ; }
+function swap
+{
+    local TMPFILE=tmp.$$;
+    mv "$1" $TMPFILE;
+    mv "$2" "$1";
+    mv $TMPFILE "$2";
+}
+
+function hgrep ()
+{
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp| xargs /usr/bin/grep -a --color=auto "$@" /dev/null
+}
+function strgrep ()
+{
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx| LC_ALL=C xargs /usr/bin/grep -a --color=auto "`echo $@ | iconv -t cp866`" /dev/null
+}
+function srcgrep ()
+{
+    find . -type f -name \*.h -o -name \*.H -o -name \*.hpp -o -name \*.c -o -name \*.cc -o -name \*.cpp -o -name \*.cxx | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
+}
+function jgrep () 
+{
+    find . -type f -name \*.java | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
+}
+function sqlgrep ()
+{
+    find . -type f -name \*.sql | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
+}
+function tsgrep ()
+{
+    find . -type f -name \*.ts | xargs /usr/bin/grep -a --color=auto "$@" /dev/null
+}
+
+# aliases
+alias ..='cd ..'
+alias cd..='cd ..'
+alias Ctags='ctags -R --c++-kinds=+p --langmap=c:.c.pc,c++:.c++.cc.cpp.cxx.h.h++.hh.hp.hpp.hxx.C.H.pcc --fields=+ianS  --extra=+q .'
+alias cal='cal -m'
+alias df='df -kTh'
+alias du='du -khs'
+alias fortune='fortune -a'
+alias lk='ls -lSr'
+alias lr='ls -lR'
+alias ll='ls -l'
+alias ls='ls -hF --color=auto'
+alias lx='ls -lXB'
+alias tree='tree -Csu'
+alias tra='sdcv'
+if which rlwrap &> /dev/null; then
+    alias telnet='rlwrap telnet'
+    alias guile='rlwrap guile'
+    alias gdb='rlwrap gdb'
+    alias sqlplus='rlwrap sqlplus'
+fi
+alias grep='grep --color=auto'
+
 # colors for less as MANPAGER
 export MANPAGER=less
 export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
@@ -36,15 +99,15 @@ export LESS_TERMCAP_so=$'\E[32;5;246m'    # begin standout-mode - info box
 export LESS_TERMCAP_ue=$'\E[0m'           # end underline
 export LESS_TERMCAP_us=$'\E[04;32;5;146m' # begin underline
 
+export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:/usr/lib64/pkgconfig
+export PATH="$HOME/bin:$PATH"
+
 declare -x PAGER='less'
-declare -x GREP_OPTIONS='--color=auto'
 declare -x GREP_COLOR='1;32'
 
-if which vim &> /dev/null
-then
+if which vim &> /dev/null; then
     declare -x EDITOR='vim'
-elif which elvis &> /dev/null
-then
+elif which elvis &> /dev/null; then
     declare -x EDITOR='elvis'
 else
     declare -x EDITOR='vi'
@@ -53,67 +116,9 @@ fi
 declare -x VISUAL="${EDITOR}"
 declare -x FCEDIT="${EDITOR}"
 
-function rmd { rm -fr $@; }
-function rmlog { rm -f *.log; }
-function e { ${EDITOR} $@; }
-function dmsg { dmesg | $PAGER; }
-function ff { find . -type f -iname '*'$*'*' -ls; }
-function swap
-{ 
-    local TMPFILE=tmp.$$;
-    mv "$1" $TMPFILE;
-    mv "$2" "$1";
-    mv $TMPFILE "$2";
-}
-hgrep () 
-{ 
-    find . -name "*[hH]" | xargs /usr/bin/grep --color=auto "$@" /dev/null
-}
-strgrep () 
-{ 
-    find . -name "*[hcCH]" | LC_ALL=C xargs /usr/bin/grep --color=auto "`echo $@ | iconv -t cp866`" /dev/null
-}
-srcgrep () 
-{ 
-    find . -name "*[hcCH]" | xargs /usr/bin/grep --color=auto "$@" /dev/null
-}
-sqlgrep () 
-{ 
-    find . -name "*[sql]" | xargs /usr/bin/grep --color=auto "$@" /dev/null
-}
-
-alias ..='cd ..'
-alias cd..='cd ..'
-alias Ctags='ctags -R --c++-kinds=+p --langmap=c:.c.pc,c++:.c++.cc.cpp.cxx.h.h++.hh.hp.hpp.hxx.C.H.pcc --fields=+ianS  --extra=+q .'
-alias cal='cal -m'
-alias df='df -kTh'
-alias du='du -khs'
-alias fortune='fortune -a'
-alias lk='ls -lSr'
-alias lr='ls -lR'
-alias ls='ls -hF --color=auto'
-alias ll='ls -l'
-alias lx='ls -lXB'
-alias tree='tree -Csu'
-alias tra='sdcv'
-
-alias telnet='rlwrap telnet'
-alias guile='rlwrap guile'
-alias gdb='rlwrap gdb'
-alias lesslog='LESSCHARSET=dos less -r'
-alias sqlplus='rlwrap sqlplus'
-alias cde='cd ~/work/tick_serv/src'
-alias cds='cd ~/work/sirena/src'
-
-export PYTHONUSERBASE=$HOME/local
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
-export PATH="$PYTHONUSERBASE/bin:$HOME/bin:$PATH"
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PYTHONUSERBASE/lib
-
+if  [ -f ~/.local_sh ]  ; then
+    . ~/.local_sh
+fi
 if [ -f ~/.dir_colors ]; then
     eval `dircolors ~/.dir_colors`
-fi
-
-if [ -f ~/.common_env ]; then
-    . ~/.common_env
 fi
