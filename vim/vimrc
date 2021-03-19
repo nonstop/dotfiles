@@ -65,14 +65,14 @@ if has("gui_running") && (&t_Co > 2)
     set guioptions-=m "get rid of menu
     set background=dark
     colorscheme xoria256 "moria
-    colorscheme murphy
+    "colorscheme murphy
     "colorscheme c16gui
     if has("gui_gtk2")
         "set guifont=Droid\ Sans\ Mono\ 10
-        set guifont=Terminus\ 12
+        set guifont=Terminus\ Regular\ 12
     elseif has("gui_gtk3")
         "set guifont=Droid\ Sans\ Mono\ 10
-        set guifont=Terminus\ 12
+        set guifont=Terminus\ Regular\ 12
     elseif has("x11")
         set guifont=--xos4-terminus-medium-*-*-*-16-*-koi8-r
     else
