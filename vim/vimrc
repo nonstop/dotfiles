@@ -30,6 +30,7 @@ if has('syntax') && (&t_Co > 2)
   syntax on
 endif
 set fileencodings=utf8,cp866
+set complete-=i
 
 set list
 set listchars=tab:->
@@ -49,6 +50,7 @@ set noundofile
 set nobackup
 set undodir=~/.vimbackup,/tmp
 set backupdir=~/.vimbackup,/tmp
+set undodir=~/.vimbackup,/tmp
 set directory=~/.vimbackup,/tmp
 
 " statusline
@@ -67,7 +69,10 @@ if has("gui_running") && (&t_Co > 2)
     colorscheme xoria256 "moria
     "colorscheme murphy
     "colorscheme c16gui
-    if has("gui_gtk2")
+    if has("gui_gtk3")
+        "set guifont=Droid\ Sans\ Mono\ 10
+        set guifont=Terminus\ Regular\ 12
+    elseif has("gui_gtk2")
         "set guifont=Droid\ Sans\ Mono\ 10
         set guifont=Terminus\ Regular\ 12
     elseif has("gui_gtk3")
@@ -86,7 +91,8 @@ if has("gui_running") && (&t_Co > 2)
 
 else
     set background=dark
-    colorscheme slate
+    "colorscheme slate
+    colorscheme xoria256 "moria
 endif
 
 " Make 'gf' rebound to last cursor position (line *and* column)
