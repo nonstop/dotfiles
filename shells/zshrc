@@ -130,6 +130,7 @@ export PATH=$HOME/bin:$PATH
 
 export PAGER='less'
 export GREP_COLOR='1;32'
+export GREP_COLORS='mt=1;32'
 
 if which vim &> /dev/null; then
     export EDITOR='vim'
